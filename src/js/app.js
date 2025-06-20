@@ -272,7 +272,7 @@ export const App = {
             // Vérifier le cache
             const cacheKey = `surah-${number}`;
             let surahData = AppState.data.cache?.[cacheKey];
-            
+
             if (!surahData) {
                 // Charger depuis l'API
                 const [arabicResponse, frenchResponse] = await Promise.all([
@@ -283,15 +283,25 @@ export const App = {
                 const arabicData = await arabicResponse.json();
                 const frenchData = await frenchResponse.json();
 
-                surahData = {
-                    arabic: arabicData.data,
-                    french: frenchData.data
-                };
+                // Si hors ligne, récupérer depuis les données intégrées
+                if (arabicData.data?.offline || frenchData.data?.offline) {
+                    surahData = API.getOfflineSurah(number);
+                } else {
+                    surahData = {
+                        arabic: arabicData.data,
+                        french: frenchData.data
+                    };
+                }
 
-                // Mettre en cache
-                if (!AppState.data.cache) AppState.data.cache = {};
-                AppState.data.cache[cacheKey] = surahData;
-                Storage.save();
+                if (surahData) {
+                    if (!AppState.data.cache) AppState.data.cache = {};
+                    AppState.data.cache[cacheKey] = surahData;
+                    Storage.save();
+                }
+            }
+
+            if (!surahData) {
+                throw new Error('No data');
             }
             
             AppState.ui.currentSurah = number;
@@ -307,6 +317,14 @@ export const App = {
             
         } catch (error) {
             console.error('Erreur chargement sourate:', error);
+
+            const offlineSurah = API.getOfflineSurah(number);
+            if (offlineSurah) {
+                this.displaySurah(offlineSurah);
+                this.showSection('reading');
+                return;
+            }
+
             if (readingSection) {
                 readingSection.innerHTML = `
                     <div class="error-message">
