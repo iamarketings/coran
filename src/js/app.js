@@ -34,9 +34,50 @@ export const App = {
         // Gestion du mode hors ligne
         window.addEventListener('online', () => this.setOnlineStatus(true));
         window.addEventListener('offline', () =>  this.setOnlineStatus(false));
-        
+
         // Gestion tactile pour mobile
         this.setupTouchEvents();
+
+        // Navigation depuis la barre inférieure
+        this.setupNavEvents();
+
+        // Barre de recherche
+        this.setupSearchEvents();
+    },
+
+    setupNavEvents() {
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.dataset.section;
+                if (section) {
+                    this.showSection(section);
+                }
+            });
+        });
+    },
+
+    setupSearchEvents() {
+        const searchInput = document.getElementById('searchInput');
+        const resultsContainer = document.getElementById('searchResults');
+        if (!searchInput || !resultsContainer) return;
+
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.toLowerCase().trim();
+            const results = this.searchSurahs(query);
+            this.renderSearchResults(results);
+        });
+
+        resultsContainer.addEventListener('click', (e) => {
+            const item = e.target.closest('.search-item');
+            if (item) {
+                const surah = parseInt(item.dataset.surah);
+                this.loadSurah(surah);
+                document.getElementById('searchContainer').classList.remove('active');
+            }
+        });
+
+        // Afficher toutes les sourates par défaut
+        this.renderSearchResults(AppState.data.surahs);
     },
     
     setupTouchEvents() {
@@ -84,13 +125,15 @@ export const App = {
     navigateToNextSection() {
         const sections = ['home', 'quran', 'audio', 'calendar', 'bookmarks'];
         const currentIndex = sections.indexOf(AppState.ui.currentSection);
+        if (currentIndex === -1) return;
         const nextIndex = (currentIndex + 1) % sections.length;
         this.showSection(sections[nextIndex]);
     },
-    
+
     navigateToPrevSection() {
         const sections = ['home', 'quran', 'audio', 'calendar', 'bookmarks'];
         const currentIndex = sections.indexOf(AppState.ui.currentSection);
+        if (currentIndex === -1) return;
         const prevIndex = currentIndex === 0 ? sections.length - 1 : currentIndex - 1;
         this.showSection(sections[prevIndex]);
     },
@@ -219,11 +262,11 @@ export const App = {
     
     async loadSurah(number) {
         console.log('Chargement sourate:', number);
-        
-        const content = document.getElementById('content') || document.querySelector('.main-content');
-        if (!content) return;
-        
-        content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Chargement de la sourate...</p></div>';
+
+        const readingSection = document.getElementById('readingSection');
+        if (!readingSection) return;
+
+        readingSection.innerHTML = '<div class="loading"><div class="spinner"></div><p>Chargement de la sourate...</p></div>';
         
         try {
             // Vérifier le cache
@@ -253,6 +296,7 @@ export const App = {
             
             AppState.ui.currentSurah = number;
             this.displaySurah(surahData);
+            this.showSection('reading');
             
             // Sauvegarder la dernière lecture
             AppState.data.lastRead = {
@@ -263,8 +307,8 @@ export const App = {
             
         } catch (error) {
             console.error('Erreur chargement sourate:', error);
-            if (content) {
-                content.innerHTML = `
+            if (readingSection) {
+                readingSection.innerHTML = `
                     <div class="error-message">
                         <div class="error-icon">⚠️</div>
                         <h3>Erreur de chargement</h3>
@@ -272,7 +316,7 @@ export const App = {
                         <button class="retry-button" id="retrySurah">Réessayer</button>
                     </div>
                 `;
-                
+
                 const retryButton = document.getElementById('retrySurah');
                 if (retryButton) {
                     retryButton.addEventListener('click', () => {
@@ -282,10 +326,10 @@ export const App = {
             }
         }
     },
-    
+
     displaySurah(surahData) {
-        const content = document.getElementById('content') || document.querySelector('.main-content');
-        if (!content) return;
+        const readingSection = document.getElementById('readingSection');
+        if (!readingSection) return;
         
         const { arabic, french } = surahData;
         
@@ -321,7 +365,7 @@ export const App = {
         });
 
         html += '</div>';
-        content.innerHTML = html;
+        readingSection.innerHTML = html;
         
         // Ajouter les événements après création du DOM
         const backButton = document.getElementById('backToQuran');
@@ -348,11 +392,14 @@ export const App = {
     showSection(sectionName) {
         console.log('Changement de section vers:', sectionName);
         
-        // Si on est en mode lecture, revenir à la liste des sourates
-        if (AppState.ui.currentSection === 'reading' && sectionName === 'quran') {
-            const content = document.getElementById('content') || document.querySelector('.main-content');
-            if (content) {
-                content.innerHTML = '<div class="surah-list" id="surahList"><div class="loading"><div class="spinner"></div><p>Chargement des sourates...</p></div></div>';
+        // Si on quitte la lecture, nettoyer la section
+        if (AppState.ui.currentSection === 'reading') {
+            const readingSection = document.getElementById('readingSection');
+            if (readingSection) {
+                readingSection.innerHTML = '';
+            }
+
+            if (sectionName === 'quran') {
                 this.displaySurahs();
             }
         }
@@ -394,6 +441,9 @@ export const App = {
                 break;
             case 'bookmarks':
                 this.loadBookmarksSection();
+                break;
+            case 'settings':
+                this.loadSettingsSection();
                 break;
         }
         
@@ -699,7 +749,7 @@ export const App = {
         // Ajouter les événements
         this.setupBookmarksEvents();
     },
-    
+
     setupBookmarksEvents() {
         // Clic sur une sourate favorite
         document.querySelectorAll('.favorite-item').forEach(item => {
@@ -720,6 +770,38 @@ export const App = {
             });
         });
     },
+
+    loadSettingsSection() {
+        const settingsSection = document.getElementById('settingsSection');
+        if (!settingsSection) return;
+
+        settingsSection.innerHTML = `
+            <div class="settings-container">
+                <button class="back-button" id="backToHome">← Accueil</button>
+                <h2 style="margin-top:1rem;">⚙️ Paramètres</h2>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="darkModeToggle" ${AppState.ui.darkMode ? 'checked' : ''}>
+                        Mode sombre
+                    </label>
+                </div>
+            </div>
+        `;
+
+        const backBtn = document.getElementById('backToHome');
+        if (backBtn) {
+            backBtn.addEventListener('click', () => this.showSection('home'));
+        }
+
+        const darkToggle = document.getElementById('darkModeToggle');
+        if (darkToggle) {
+            darkToggle.addEventListener('change', () => {
+                document.body.classList.toggle('dark-mode', darkToggle.checked);
+                AppState.ui.darkMode = darkToggle.checked;
+                Storage.save();
+            });
+        }
+    },
     
     toggleFavorite(surahNumber) {
         if (!AppState.data.favorites) AppState.data.favorites = [];
@@ -738,6 +820,29 @@ export const App = {
         if (favoriteButton) {
             favoriteButton.innerHTML = AppState.data.favorites.includes(surahNumber) ? '❤️' : '🤍';
         }
+    },
+
+    searchSurahs(query) {
+        if (!query) return AppState.data.surahs;
+        return AppState.data.surahs.filter(s =>
+            s.englishName.toLowerCase().includes(query) ||
+            s.englishNameTranslation.toLowerCase().includes(query) ||
+            s.name.includes(query)
+        );
+    },
+
+    renderSearchResults(results) {
+        const container = document.getElementById('searchResults');
+        if (!container) return;
+        container.innerHTML = '';
+
+        results.forEach(surah => {
+            const div = document.createElement('div');
+            div.className = 'search-item';
+            div.dataset.surah = surah.number;
+            div.innerHTML = `<strong>${surah.number}</strong> ${surah.englishName}`;
+            container.appendChild(div);
+        });
     },
     
     updatePrayerTimes() {

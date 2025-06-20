@@ -274,6 +274,48 @@ input, textarea {
     transform: scale(0.95);
 }
 
+/* Barre de recherche */
+.search-container {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 0.75rem;
+    box-shadow: var(--shadow);
+    display: none;
+    z-index: 150;
+}
+
+.search-container.active {
+    display: block;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.search-results {
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+}
+
+.search-item {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.search-item:hover {
+    background: var(--bg);
+}
+
 .main-content {
     max-width: 1200px;
     margin: 0 auto;
@@ -978,6 +1020,21 @@ input, textarea {
     gap: 0.75rem;
 }
 
+/* Section Paramètres */
+.settings-container {
+    background: white;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    max-width: 400px;
+    margin: 2rem auto;
+}
+
+.setting-item {
+    margin: 1rem 0;
+    font-size: 1rem;
+}
+
 .favorite-item {
     display: flex;
     align-items: center;
@@ -1346,9 +1403,18 @@ body.dark-mode .error-message,
 body.dark-mode .audio-container,
 body.dark-mode .calendar-container,
 body.dark-mode .bookmarks-container,
-body.dark-mode .bookmarks-empty {
+body.dark-mode .bookmarks-empty,
+body.dark-mode .settings-container {
     background: #222;
     color: #e0e0e0;
+}
+
+body.dark-mode .search-container {
+    background: #222;
+}
+
+body.dark-mode .search-item:hover {
+    background: #333;
 }
 
 body.dark-mode .setup-screen {
