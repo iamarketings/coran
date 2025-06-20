@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Coran - Application Complète</title>
+    <meta name="theme-color" content="#1a5f3f">
+    <meta name="description" content="Application Coran complète avec horaires de prière">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMxYTVmM2YiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+CjxwYXRoIGQ9Ik00IDRoMTZ2MTZINFoiLz4KPHBhdGggZD0iTTggMTJoOCIvPgo8L3N2Zz4KPC9zdmc+">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMxYTVmM2YiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+CjxwYXRoIGQ9Ik00IDRoMTZ2MTZINFoiLz4KPHBhdGggZD0iTTggMTJoOCIvPgo8L3N2Zz4KPC9zdmc+">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Coran App">
+    
+    <!-- Optimisation mobile -->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+</head>
+<body>
+    <!-- Configuration initiale -->
+    <div class="setup-screen" id="setupScreen">
+        <div class="setup-container">
+            <div class="setup-logo">📖</div>
+            <h1 class="setup-title">Coran App</h1>
+            <p class="setup-subtitle">Configuration rapide</p>
+            
+            <div class="setup-progress">
+                <span class="progress-dot active"></span>
+                <span class="progress-dot"></span>
+                <span class="progress-dot"></span>
+                <span class="progress-dot"></span>
+            </div>
+
+            <!-- Étape 1: Bienvenue -->
+            <div class="setup-step active" id="step1">
+                <h2>Bienvenue dans votre application Coran</h2>
+                <p style="margin: 1rem 0; color: #666;">
+                    Quelques étapes rapides pour personnaliser votre expérience
+                </p>
+                <button class="setup-button" onclick="nextStep()">Commencer</button>
+            </div>
+
+            <!-- Étape 2: Localisation -->
+            <div class="setup-step" id="step2">
+                <h2>📍 Localisation</h2>
+                <p style="margin: 1rem 0; color: #666;">
+                    Pour calculer les horaires de prière
+                </p>
+                <button class="setup-button" onclick="requestLocation()">
+                    Autoriser la localisation
+                </button>
+                <p style="margin: 1rem 0;">ou</p>
+                <input type="text" class="setup-input" placeholder="Entrez votre ville..." id="cityInput">
+                <button class="setup-button" onclick="searchCity()">Rechercher</button>
+            </div>
+
+            <!-- Étape 3: Méthode de calcul -->
+            <div class="setup-step" id="step3">
+                <h2>🕌 Méthode de calcul</h2>
+                <div class="setup-options">
+                    <label class="setup-option">
+                        <input type="radio" name="method" value="MWL" checked>
+                        <div>
+                            <strong>Muslim World League</strong><br>
+                            <small>Standard international</small>
+                        </div>
+                    </label>
+                    <label class="setup-option">
+                        <input type="radio" name="method" value="ISNA">
+                        <div>
+                            <strong>ISNA</strong><br>
+                            <small>Amérique du Nord</small>
+                        </div>
+                    </label>
+                    <label class="setup-option">
+                        <input type="radio" name="method" value="Egypt">
+                        <div>
+                            <strong>Egyptian Authority</strong><br>
+                            <small>Moyen-Orient</small>
+                        </div>
+                    </label>
+                    <label class="setup-option">
+                        <input type="radio" name="method" value="UOIF">
+                        <div>
+                            <strong>UOIF</strong><br>
+                            <small>France</small>
+                        </div>
+                    </label>
+                </div>
+                <button class="setup-button" onclick="nextStep()">Continuer</button>
+            </div>
+
+            <!-- Étape 4: Téléchargement -->
+            <div class="setup-step" id="step4">
+                <h2>💾 Préparer l'utilisation hors ligne</h2>
+                <div class="setup-options">
+                    <label class="setup-option">
+                        <input type="checkbox" checked disabled>
+                        <div>
+                            <strong>Texte du Coran</strong><br>
+                            <small>Complet en français et arabe (10 MB)</small>
+                        </div>
+                    </label>
+                    <label class="setup-option">
+                        <input type="checkbox" checked>
+                        <div>
+                            <strong>Pack essentiel audio</strong><br>
+                            <small>Al-Fatiha + protection (15 MB)</small>
+                        </div>
+                    </label>
+                    <label class="setup-option">
+                        <input type="checkbox">
+                        <div>
+                            <strong>Pack quotidien</strong><br>
+                            <small>Sourates courtes (45 MB)</small>
+                        </div>
+                    </label>
+                    <label class="setup-option">
+                        <input type="checkbox">
+                        <div>
+                            <strong>Pack hebdomadaire</strong><br>
+                            <small>Al-Kahf + Jumu'ah (80 MB)</small>
+                        </div>
+                    </label>
+                </div>
+                <button class="setup-button" onclick="finishSetup()">
+                    Terminer et télécharger
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application principale -->
+    <div class="app-container" id="appContainer">
+        <!-- En-tête -->
+        <header class="header">
+            <div class="header-content">
+                <h1>📖 Coran</h1>
+                <div class="header-actions">
+                    <button class="header-button" onclick="toggleSearch()">🔍</button>
+                    <button class="header-button" onclick="toggleDarkMode()">🌙</button>
+                    <button class="header-button" onclick="showSettings()">⚙️</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Bannière hors ligne -->
+        <div class="offline-banner" id="offlineBanner">
+            📡 Mode hors ligne - Fonctionnalités limitées
+        </div>
+
+        <!-- Indicateur de synchronisation -->
+        <div class="sync-indicator" id="syncIndicator">
+            🔄 Synchronisation...
+        </div>
+
+        <!-- Contenu principal -->
+        <main class="main-content" id="content">
+            <!-- Section Accueil -->
+            <div class="section active" id="homeSection">
+                <!-- Widget prière -->
+                <div class="prayer-widget">
+                    <div class="prayer-location">
+                        <span>📍</span>
+                        <span id="locationDisplay">Chargement...</span>
+                    </div>
+                    <div class="prayer-times" id="prayerTimes">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                    <div class="next-prayer" id="nextPrayer" style="display: none;">
+                        <strong>Prochaine prière :</strong> <span id="nextPrayerName"></span> dans <span id="nextPrayerTime"></span>
+                    </div>
+                </div>
+
+                <!-- Grille de fonctionnalités -->
+                <div class="feature-grid">
+                    <div class="feature-card" onclick="App.showSection('quran')" role="button" tabindex="0">
+                        <div class="feature-icon">📖</div>
+                        <div class="feature-title">Lire</div>
+                        <div class="feature-desc">114 sourates</div>
+                    </div>
+                    <div class="feature-card" onclick="App.showSection('audio')" role="button" tabindex="0">
+                        <div class="feature-icon">🎧</div>
+                        <div class="feature-title">Écouter</div>
+                        <div class="feature-desc">Récitations</div>
+                    </div>
+                    <div class="feature-card" onclick="App.showSection('calendar')" role="button" tabindex="0">
+                        <div class="feature-icon">📅</div>
+                        <div class="feature-title">Calendrier</div>
+                        <div class="feature-desc">Hijri</div>
+                    </div>
+                    <div class="feature-card" onclick="App.showSection('bookmarks')" role="button" tabindex="0">
+                        <div class="feature-icon">⭐</div>
+                        <div class="feature-title">Favoris</div>
+                        <div class="feature-desc">Sauvegardés</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Coran -->
+            <div class="section" id="quranSection">
+                <div class="surah-list" id="surahList">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Chargement des sourates...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Audio -->
+            <div class="section" id="audioSection">
+                <div style="text-align: center; padding: 3rem 1rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🎧</div>
+                    <h2>Récitations Audio</h2>
+                    <p style="color: #666;">Sélectionnez une sourate pour l'écouter</p>
+                </div>
+            </div>
+
+            <!-- Section Calendrier -->
+            <div class="section" id="calendarSection">
+                <div style="text-align: center; padding: 3rem 1rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
+                    <h2>Calendrier Hijri</h2>
+                    <div id="hijriDate" style="font-size: 1.5rem; color: var(--primary); margin: 1rem 0;"></div>
+                    <div id="gregorianDate" style="color: #666;"></div>
+                </div>
+            </div>
+
+            <!-- Section Favoris -->
+            <div class="section" id="bookmarksSection">
+                <div style="text-align: center; padding: 3rem 1rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">⭐</div>
+                    <h2>Mes Favoris</h2>
+                    <p style="color: #666;">Aucun favori pour le moment</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Navigation -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" data-section="home" role="button" tabindex="0" aria-label="Accueil">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Accueil</span>
+            </div>
+            <div class="nav-item" data-section="quran" role="button" tabindex="0" aria-label="Coran">
+                <span class="nav-icon">📖</span>
+                <span class="nav-label">Coran</span>
+            </div>
+            <div class="nav-item" data-section="audio" role="button" tabindex="0" aria-label="Audio">
+                <span class="nav-icon">🎧</span>
+                <span class="nav-label">Audio</span>
+            </div>
+            <div class="nav-item" data-section="calendar" role="button" tabindex="0" aria-label="Calendrier">
+                <span class="nav-icon">📅</span>
+                <span class="nav-label">Calendrier</span>
+            </div>
+            <div class="nav-item" data-section="bookmarks" role="button" tabindex="0" aria-label="Favoris">
+                <span class="nav-icon">⭐</span>
+                <span class="nav-label">Favoris</span>
+            </div>
+        </nav>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
