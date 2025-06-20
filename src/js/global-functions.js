@@ -164,8 +164,20 @@ export function setupGlobalFunctions() {
             searchContainer.classList.toggle('active');
             const searchInput = searchContainer.querySelector('input');
             if (searchInput) {
+                searchInput.value = '';
                 searchInput.focus();
+                // Réafficher toutes les sourates lorsque la recherche s'ouvre
+                App.renderSearchResults(AppState.data.surahs);
             }
+
+            // Fermer avec Échap
+            const handler = (e) => {
+                if (e.key === 'Escape') {
+                    searchContainer.classList.remove('active');
+                    document.removeEventListener('keydown', handler);
+                }
+            };
+            document.addEventListener('keydown', handler);
         }
     };
 
